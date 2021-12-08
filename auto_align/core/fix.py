@@ -48,7 +48,7 @@ def extract_utterances(data, config):
 
         name = str(index) + ".flac"
 
-        result = model.predict(audio_segment, name)
+        result = model.predict(audio_segment, name, caption["label"])
 
         match = compare_captions(result, caption)
 
@@ -66,7 +66,7 @@ class GoogleSpeechAPIClient:
         self.config = config
         self.client = speech.SpeechClient()
 
-    def predict(self, audio, name):
+    def predict(self, audio, name, label):
 
         logger.debug("Running google speech to text on: " + name)
 
@@ -78,6 +78,8 @@ class GoogleSpeechAPIClient:
             encoding=speech.RecognitionConfig.AudioEncoding.FLAC,
             sample_rate_hertz=48000,
             enable_word_time_offsets=True,
+            speech_contexts = [speech.SpeechContext(phrases=get_label_words(label))
+            ],
             #enable_word_confidence=True,
             language_code=self.config["deploy"]["model"]["language"],
         )
