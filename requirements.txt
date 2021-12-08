@@ -1,0 +1,5 @@
+python-configuration[yaml]
+srt
+google-cloud-speech
+smart_open[gcs]
+pydub

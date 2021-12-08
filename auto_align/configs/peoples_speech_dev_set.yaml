@@ -1,0 +1,16 @@
+
+verbose: True
+verbose_info: True
+
+data:
+    audio_path: /Users/greg/checkout/fix-alignments/data/peoples-speech-dev-set/2-18-15_City_Council_Meeting/2-18-15_City_Council_Meeting.flac
+    srt_path: /Users/greg/checkout/fix-alignments/data/peoples-speech-dev-set/2-18-15_City_Council_Meeting/2-18-15_City_Council_Meeting-short.srt
+    result_srt_path: /Users/greg/checkout/fix-alignments/data/peoples-speech-dev-set/2-18-15_City_Council_Meeting/2-18-15_City_Council_Meeting-result.srt
+    padding_ms: 1000
+
+deploy:
+    model:
+        type: "google"
+        language: "en"
+        google_cloud_storage_path: "gs://peoples-speech/google-speech-to-text-dev-set"
+
