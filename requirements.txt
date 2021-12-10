@@ -1,5 +1,7 @@
 python-configuration[yaml]
+numpy
 srt
 google-cloud-speech
 smart_open[gcs]
 pydub
+alignment
