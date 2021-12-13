@@ -1,5 +1,6 @@
 python-configuration[yaml]
 numpy
+gruut
 srt
 google-cloud-speech
 smart_open[gcs]

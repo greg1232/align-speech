@@ -17,6 +17,8 @@ from auto_align.util.config import setup_logging
 
 from datetime import timedelta
 
+from gruut import sentences as gruut_sentences
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -103,7 +105,7 @@ class GoogleSpeechAPIClient:
 
         config = speech.RecognitionConfig(
             encoding=speech.RecognitionConfig.AudioEncoding.FLAC,
-            sample_rate_hertz=48000,
+            sample_rate_hertz=self.config["data"]["sampling_rate"],
             enable_word_time_offsets=True,
             speech_contexts = [speech.SpeechContext(phrases=get_label_words(label))
             ],
@@ -113,7 +115,7 @@ class GoogleSpeechAPIClient:
 
         response = self.client.recognize(config=config, audio=audio, timeout=15.0)
 
-        logger.debug(" result is: " + str(response.results))
+        #logger.debug(" result is: " + str(response.results))
 
         return response.results
 
@@ -160,20 +162,35 @@ def compare_captions(results, caption):
 def get_label_words(label):
     words = label.split()
 
-    return [word for word in words if not is_punctuation(word)]
+    without_punctuation = [word for word in words if not is_punctuation(word)]
+
+    normalized_words = []
+
+    for word in without_punctuation:
+        normalized_sentences = gruut_sentences(word)
+
+        for sentence in normalized_sentences:
+            for normalized_word in sentence:
+                normalized_words.append(normalized_word.text)
+
+    return normalized_words
 
 def is_punctuation(word):
     return word == "." or word == ","
 
 def align(label_words, alternative):
+    normalized_words = normalize_words(alternative.words)
+
     label = Sequence(label_words)
-    predicted = Sequence([word.word.lower() for word in alternative.words])
+    predicted = Sequence([word.word.lower() for word in normalized_words])
 
     # Create a vocabulary and encode the sequences.
     v = Vocabulary()
     predicted_encoded = v.encodeSequence(predicted)
     label_encoded = v.encodeSequence(label)
 
+    logger.debug("STT confidence: " + str(alternative.confidence))
+    logger.debug("Label: " + str(label))
     logger.debug("Predicted encoded: " + str(predicted_encoded))
     logger.debug("Labeled encoded: " + str(label_encoded))
 
@@ -190,7 +207,7 @@ def align(label_words, alternative):
     alignment_result = v.decodeSequenceAlignment(encodeds[0])
     confidence = alternative.confidence * (alignment_result.percentIdentity())
 
-    start_time, end_time, confidence = find_start_and_end(best_encoded, alternative.words, confidence, vocab=v)
+    start_time, end_time, confidence = find_start_and_end(best_encoded, normalized_words, confidence, vocab=v)
 
     result = {
         "start_time" : start_time,
@@ -201,6 +218,28 @@ def align(label_words, alternative):
     logger.debug("Result: " + str(result))
 
     return result
+
+class Word:
+    def __init__(self, word, start_time, end_time):
+        self.word = word
+        self.start_time = start_time
+        self.end_time = end_time
+
+def normalize_words(words):
+    normalized_words = []
+
+    logger.debug("Normalizing words: " + str([word.word for word in words]))
+
+    for word in words:
+        normalized_sentences = gruut_sentences(word.word)
+
+        for sentence in normalized_sentences:
+            for normalized_word in sentence:
+                normalized_words.append(Word(normalized_word.text, word.start_time, word.end_time))
+
+    logger.debug("Normalized to : " + str([word.word for word in normalized_words]))
+
+    return normalized_words
 
 def find_start_and_end(best_encoded, words, confidence, vocab):
     match_begin = None
