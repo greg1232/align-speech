@@ -34,5 +34,5 @@ pip install -r $LOCAL_DIRECTORY/requirements.txt > /dev/null
 export GOOGLE_APPLICATION_CREDENTIALS=${HOME}/.aws/google-cloud-credentials.json
 
 # Start the dev environment
-PYTHONPATH=$LOCAL_DIRECTORY python $LOCAL_DIRECTORY/auto_align/cli/fix.py $@
+PYTHONPATH=$LOCAL_DIRECTORY python $LOCAL_DIRECTORY/align_speech/cli/fix.py $@
 

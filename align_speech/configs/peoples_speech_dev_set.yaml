@@ -1,0 +1,20 @@
+
+verbose: True
+verbose_info: True
+
+data:
+    audio_path: data/peoples-speech-dev-set/17DaysTh1945/17DaysTh1945.flac
+    srt_path: data/peoples-speech-dev-set/17DaysTh1945/17DaysTh1945_sentences.srt
+    result_srt_path: data/17DaysTh1945/17DaysTh1945_sentences-result.srt
+    sampling_rate: 22050
+    padding_ms: 1000
+
+deploy:
+    model:
+        type: "google"
+        language: "en"
+        google_cloud_storage_path: "gs://peoples-speech/google-speech-to-text-dev-set"
+
+align:
+    minimum_confidence: 50.0
+
