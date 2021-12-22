@@ -218,7 +218,8 @@ def find_start_and_end(best_encoded, words, confidence, vocab):
         encoded_word = vocab.encode(word.word.lower())
         query_word = best_encoded[offset]
 
-        logger.debug("Checking encoded word: " + str(encoded_word) + ", offset: " + str(offset) + ", searching for: " + str(query_word))
+        logger.debug("Checking encoded word: " + str(encoded_word) +
+            ", offset: " + str(offset) + ", searching for: " + str(query_word))
 
         if query_word == encoded_word:
             if offset == 0:
