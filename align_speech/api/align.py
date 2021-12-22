@@ -8,6 +8,8 @@ from alignment.sequence import Sequence
 from alignment.vocabulary import Vocabulary
 from alignment.sequencealigner import SimpleScoring, GlobalSequenceAligner
 
+from align_speech.util.config import setup_config
+
 from smart_open import open
 
 from gruut import sentences as gruut_sentences
@@ -16,7 +18,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def align(data, config):
+def align(data, user_config={}):
+
+    config = setup_config(user_config)
+
     model = GoogleSpeechAPIClient(config)
 
     for index, caption in enumerate(data):
@@ -51,7 +56,7 @@ class GoogleSpeechAPIClient:
 
         config = speech.RecognitionConfig(
             encoding=speech.RecognitionConfig.AudioEncoding.FLAC,
-            sample_rate_hertz=self.config["data"]["sampling_rate"],
+            sample_rate_hertz=audio.frame_rate,
             enable_word_time_offsets=True,
             speech_contexts = [speech.SpeechContext(phrases=get_label_words(label))
             ],
