@@ -52,7 +52,7 @@ class GoogleSpeechAPIClient:
 
         gcs_path = self.copy_to_gcs(audio, name)
 
-        audio = speech.RecognitionAudio(uri=gcs_path)
+        recognize_audio = speech.RecognitionAudio(uri=gcs_path)
 
         config = speech.RecognitionConfig(
             encoding=speech.RecognitionConfig.AudioEncoding.FLAC,
@@ -64,7 +64,8 @@ class GoogleSpeechAPIClient:
             language_code=self.config["deploy"]["model"]["language"],
         )
 
-        response = self.client.recognize(config=config, audio=audio, timeout=15.0)
+        response = self.client.recognize(config=config,
+            audio=recognize_audio, timeout=15.0)
 
         #logger.debug(" result is: " + str(response.results))
 
