@@ -20,6 +20,19 @@ setuptools.setup(
         "License :: OSI Approved :: Apache2 License",
         "Operating System :: OS Independent",
     ],
-    packages=["align_speech"],
+    packages=setuptools.find_packages(where="."),
+    package_data  = {
+            'align_speech': ['align_speech/configs/peoples_speech_dev_set.yaml'],
+    },
+    install_requires = [
+        "python-configuration[yaml]",
+        "numpy",
+        "gruut",
+        "srt",
+        "google-cloud-speech",
+        "smart_open[gcs]",
+        "pydub",
+        "alignment"
+    ],
     python_requires=">=3.6",
 )
