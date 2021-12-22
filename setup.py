@@ -22,7 +22,7 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(where="."),
     package_data  = {
-            'align_speech': ['align_speech/configs/peoples_speech_dev_set.yaml'],
+            'align_speech': ['configs/peoples_speech_dev_set.yaml'],
     },
     install_requires = [
         "python-configuration[yaml]",
