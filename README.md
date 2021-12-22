@@ -1,7 +1,6 @@
-# Autoalign
+# Align Speech
 
-Attempts to fix start and end timestamps in SRT files using the timestamps from
-a speech to text model.  The current version uses google cloud speech.
+Matches a text file and audio file.  The current version uses google cloud speech.  There is a command line tool that supports SRT files.  
 
 # Installation:
 
