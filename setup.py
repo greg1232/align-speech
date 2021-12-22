@@ -11,7 +11,7 @@ setuptools.setup(
     description="A simple library for forced alignment.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/greg1232/speech-align",
+    url="https://github.com/greg1232/align-speech",
     project_urls={
         "Bug Tracker": "https://github.com/greg1232/speech-align/issues",
     },
@@ -20,7 +20,6 @@ setuptools.setup(
         "License :: OSI Approved :: Apache2 License",
         "Operating System :: OS Independent",
     ],
-    package_dir={"": "align_speech"},
-    packages=setuptools.find_packages(where="align_speech"),
+    packages=["align_speech"],
     python_requires=">=3.6",
 )
