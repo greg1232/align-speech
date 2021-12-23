@@ -37,6 +37,7 @@ def align(data, user_config={}):
         logger.debug("Best match: " + str(match))
 
         if match["confidence"] < config["align"]["minimum_confidence"]:
+            logger.debug("Skipping match below confidence.")
             continue
 
         yield match
