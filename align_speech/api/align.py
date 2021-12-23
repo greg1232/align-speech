@@ -116,7 +116,7 @@ def compare_captions(results, caption):
         for alternative in result.alternatives:
             alignment = align_sequence(label_words, alternative)
 
-            if alignment["confidence"] > old_confidence:
+            if alignment["confidence"] >= old_confidence:
 
                 old_confidence = alignment["confidence"]
                 best_match = {
