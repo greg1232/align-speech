@@ -215,7 +215,7 @@ def find_start_and_end(best_encoded, words, confidence, vocab):
     match_end = None
     offset = 0
 
-    if len(best_encoded) < 2:
+    if len(best_encoded) < 1:
         return 0,0,0
 
     word_index = 0
