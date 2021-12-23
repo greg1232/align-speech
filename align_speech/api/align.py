@@ -141,7 +141,7 @@ def get_label_words(label):
 
         for sentence in normalized_sentences:
             for normalized_word in sentence:
-                normalized_words.append(normalized_word.text)
+                normalized_words.append(normalized_word.text.lower())
 
     return normalized_words
 
