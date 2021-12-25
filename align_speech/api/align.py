@@ -112,8 +112,8 @@ def compare_captions(results, caption, config):
 
     best_match = {
         "confidence" : config["align"]["minimum_update_confidence"],
-        "start" : start + caption["start"],
-        "end" : start + caption["end"],
+        "start" : caption["start"],
+        "end" : caption["end"],
         "label" : caption["label"]
     }
 
@@ -177,7 +177,7 @@ def align_sequence(label_words, alternative):
     logger.debug("Best encoded alignment: " + str(best_encoded))
 
     alignment_result = v.decodeSequenceAlignment(encodeds[0])
-    confidence = alternative.confidence * (alignment_result.percentIdentity())
+    confidence = alternative.confidence * (alignment_result.identicalCount / len(label_encoded))
 
     start_time, end_time, confidence = find_start_and_end(best_encoded, normalized_words, confidence, vocab=v)
 
