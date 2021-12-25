@@ -177,7 +177,7 @@ def align_sequence(label_words, alternative):
     logger.debug("Best encoded alignment: " + str(best_encoded))
 
     alignment_result = v.decodeSequenceAlignment(encodeds[0])
-    confidence = alternative.confidence * (alignment_result.identicalCount / len(label_encoded))
+    confidence = alternative.confidence * (100.0 * alignment_result.identicalCount / len(label_encoded))
 
     start_time, end_time, confidence = find_start_and_end(best_encoded, normalized_words, confidence, vocab=v)
 
