@@ -259,5 +259,5 @@ def try_relaxed_match(index, caption, model, config):
     relaxed_caption["end"] = min(relaxed_caption["max_length"], center_time + 7400)
     logger.debug("Trying relaxed match for: " + str(relaxed_caption))
 
-    return get_match(index, relaxed_caption, model)
+    return get_match(index, relaxed_caption, model, config)
 
