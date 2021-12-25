@@ -16,5 +16,6 @@ deploy:
         google_cloud_storage_path: "gs://peoples-speech/google-speech-to-text-dev-set"
 
 align:
-    minimum_confidence: 50.0
+    minimum_return_confidence: 0.0
+    minimum_update_confidence: 50.0
 

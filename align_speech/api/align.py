@@ -26,17 +26,17 @@ def align(data, user_config={}):
 
     for index, caption in enumerate(data):
 
-        match = get_match(index, caption, model)
+        match = get_match(index, caption, model, config)
 
         if match is None:
-            match = try_relaxed_match(index, caption, model)
+            match = try_relaxed_match(index, caption, model, config)
 
         if match is None:
             continue
 
         logger.debug("Best match: " + str(match))
 
-        if match["confidence"] < config["align"]["minimum_confidence"]:
+        if match["confidence"] < config["align"]["minimum_return_confidence"]:
             logger.debug("Skipping match below confidence.")
             continue
 
@@ -82,7 +82,7 @@ class GoogleSpeechAPIClient:
 
         return gcs_path
 
-def get_match(index, caption, model):
+def get_match(index, caption, model, config):
 
     start = caption["start"]
     end = caption["end"]
@@ -93,13 +93,13 @@ def get_match(index, caption, model):
 
     result = model.predict(audio_segment, name, caption["label"])
 
-    match = compare_captions(result, caption)
+    match = compare_captions(result, caption, config)
 
     logger.debug("Label is: " + str(caption["label"]))
 
     return match
 
-def compare_captions(results, caption):
+def compare_captions(results, caption, config):
     if len(results) == 0:
         return None
 
@@ -110,16 +110,18 @@ def compare_captions(results, caption):
 
     start = caption["start"]
 
-    best_match = None
-    old_confidence = 0
+    best_match = {
+        "confidence" : config["align"]["minimum_update_confidence"],
+        "start" : start + caption["start"],
+        "end" : start + caption["end"],
+        "label" : caption["label"]
+    }
 
     for result in results:
         for alternative in result.alternatives:
             alignment = align_sequence(label_words, alternative)
 
-            if alignment["confidence"] >= old_confidence:
-
-                old_confidence = alignment["confidence"]
+            if alignment["confidence"] >= best_match["confidence"]:
                 best_match = {
                     "confidence" : alignment["confidence"],
                     "start" : start + alignment["start_time"],
@@ -248,7 +250,7 @@ def find_start_and_end(best_encoded, words, confidence, vocab):
 
     return (match_begin.start_time.total_seconds() * 1000), (match_end.end_time.total_seconds() * 1000), confidence
 
-def try_relaxed_match(index, caption, model):
+def try_relaxed_match(index, caption, model, config):
     relaxed_caption = dict(caption)
 
     center_time = relaxed_caption["start"] + ((relaxed_caption["end"] - relaxed_caption["start"]) / 2)
