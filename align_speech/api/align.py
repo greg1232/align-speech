@@ -22,6 +22,35 @@ def align(data, user_config={}):
 
     config = setup_config(user_config)
 
+    individual_alignments = align_individual(data, config)
+
+    return align_pairs(individual_alignments, config)
+
+def align_pairs(individual_alignments, config):
+    previous = None
+
+    for current in individual_alignments:
+        if previous is None:
+            continue
+
+        # fix previous alignments that run over the current
+        if previous["end"] > current["start"]:
+            previous["end"] = current["start"]
+
+        # split the difference between previous and current
+        midpoint = current["start"] + (current["start"] - previous["end"]) / 2
+
+        previous["end"] = midpoint
+        current["start"] = midpoint
+
+        yield previous
+
+        previous = current
+
+    yield previous
+
+def align_individual(data, config):
+
     model = GoogleSpeechAPIClient(config)
 
     for index, caption in enumerate(data):
