@@ -31,10 +31,14 @@ def align_pairs(individual_alignments, config):
 
     for current in individual_alignments:
         if previous is None:
+            previous = current
             continue
 
         # fix previous alignments that run over the current
         if previous["end"] > current["start"]:
+            logger.debug("Fixing overlapping alignments: ")
+            logger.debug(" Previous: " + str(previous))
+            logger.debug(" Current:" + str(current))
             previous["end"] = current["start"]
 
         # split the difference between previous and current
