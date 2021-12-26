@@ -35,21 +35,24 @@ def align_pairs(individual_alignments, config):
             continue
 
         # fix previous alignments that run over the current
-        if previous["end"] > current["start"] and previous["start"] < current["start"]:
-            logger.debug("Fixing overlapping alignments: ")
+        if previous["start"] < current["start"]:
+            if previous["end"] > current["start"]:
+                logger.debug("Fixing overlapping alignments: ")
+                logger.debug(" Previous: " + str(previous))
+                logger.debug(" Current:" + str(current))
+                previous["end"] = current["start"]
+
+            # split the difference between previous and current
+            midpoint = previous["end"] + (current["start"] - previous["end"]) / 2
+
+            logger.debug("Adjusting midpoint: " + str(midpoint))
             logger.debug(" Previous: " + str(previous))
             logger.debug(" Current:" + str(current))
-            previous["end"] = current["start"]
 
-        # split the difference between previous and current
-        midpoint = previous["end"] + (current["start"] - previous["end"]) / 2
-
-        logger.debug("Adjusting midpoint: " + str(midpoint))
-        logger.debug(" Previous: " + str(previous))
-        logger.debug(" Current:" + str(current))
-
-        previous["end"] = midpoint
-        current["start"] = midpoint
+            previous["end"] = midpoint
+            current["start"] = midpoint
+        else:
+            logger.debug("Alignments are out of order, skipping")
 
         yield previous
 
