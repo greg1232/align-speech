@@ -18,4 +18,6 @@ deploy:
 align:
     minimum_return_confidence: 0.0
     minimum_update_confidence: 50.0
+    minimum_alignment_confidence: 50.0
+    minimum_speech_confidence: 50.0
 

@@ -70,6 +70,9 @@ def align_individual(data, config):
 
         if match is None:
             match = try_relaxed_match(index, caption, model, config)
+        elif ((match["speech_confidence"] > config["align"]["minimum_speech_confidence"]) and
+            (match["alignment_confidence"] < config["align"]["minimum_alignment_confidence"])):
+            match = try_relaxed_match(index, caption, model, config)
 
         if match is None:
             continue
@@ -151,6 +154,8 @@ def compare_captions(results, caption, config):
 
     best_match = {
         "confidence" : config["align"]["minimum_update_confidence"],
+        "speech_confidence" : 0.0,
+        "alignment_confidence" : 0.0,
         "start" : caption["start"],
         "end" : caption["end"],
         "label" : caption["label"]
@@ -163,12 +168,20 @@ def compare_captions(results, caption, config):
             if alignment["confidence"] >= best_match["confidence"]:
                 best_match = {
                     "confidence" : alignment["confidence"],
+                    "speech_confidence" : alignment["speech_confidence"],
+                    "alignment_confidence" : alignment["alignment_confidence"],
                     "start" : start + alignment["start_time"],
                     "end" : start + alignment["end_time"],
                     "label" : caption["label"]
                 }
             else:
                 best_match["confidence"] += alignment["confidence"] / 100.0
+
+            if alignment["speech_confidence"] >= best_match["speech_confidence"]:
+                best_match["speech_confidence"] = alignment["speech_confidence"]
+
+            if alignment["alignment_confidence"] >= best_match["alignment_confidence"]:
+                best_match["alignment_confidence"] = alignment["alignment_confidence"]
 
     return best_match
 
@@ -218,11 +231,14 @@ def align_sequence(label_words, alternative):
     logger.debug("Best encoded alignment: " + str(best_encoded))
 
     alignment_result = v.decodeSequenceAlignment(encodeds[0])
-    confidence = alternative.confidence * (100.0 * alignment_result.identicalCount / len(label_encoded))
+    alignment_confidence = alignment_result.identicalCount / len(label_encoded)
+    confidence = alternative.confidence * (100.0 * alignment_confidence)
 
     start_time, end_time, confidence = find_start_and_end(best_encoded, normalized_words, confidence, vocab=v)
 
     result = {
+        "speech_confidence" : alternative.confidence * 100.0,
+        "alignment_confidence" : alignment_confidence * 100.0,
         "start_time" : start_time,
         "end_time" : end_time,
         "confidence" : confidence
