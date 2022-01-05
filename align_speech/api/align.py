@@ -168,7 +168,7 @@ def compare_captions(results, caption, config):
                     "label" : caption["label"]
                 }
             else:
-                best_match["confidence"] += algignment["confidence"] / 100.0
+                best_match["confidence"] += alignment["confidence"] / 100.0
 
     return best_match
 
