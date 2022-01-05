@@ -99,8 +99,7 @@ class GoogleSpeechAPIClient:
             encoding=speech.RecognitionConfig.AudioEncoding.FLAC,
             sample_rate_hertz=audio.frame_rate,
             enable_word_time_offsets=True,
-            speech_contexts = [speech.SpeechContext(phrases=get_label_words(label))
-            ],
+            speech_contexts = [speech.SpeechContext(phrases=get_label_words(label))],
             #enable_word_confidence=True,
             language_code=self.config["deploy"]["model"]["language"],
         )
@@ -168,6 +167,8 @@ def compare_captions(results, caption, config):
                     "end" : start + alignment["end_time"],
                     "label" : caption["label"]
                 }
+            else:
+                best_match["confidence"] += algignment["confidence"] / 100.0
 
     return best_match
 
