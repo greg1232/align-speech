@@ -30,7 +30,7 @@ setuptools.setup(
         "gruut",
         "srt",
         "google-cloud-speech",
-        "smart_open[gcs]",
+        "smart_open[gcs,s3]",
         "pydub",
         "alignment"
     ],
