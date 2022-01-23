@@ -26,7 +26,7 @@ class PureDataAPIClient:
         logger.debug(" result is: " + str(response.json()))
 
         # format the result to match google speech api
-        result = PureDataResult(response.json())
+        result = PureDataResult(response.json(), self.config)
 
         return [result]
 
@@ -41,11 +41,11 @@ class PureDataAPIClient:
         return gcs_path
 
 class PureDataResult:
-    def __init__(self, result):
-        self.alternatives = [PureDataAlternative(result)]
+    def __init__(self, result, config):
+        self.alternatives = [PureDataAlternative(result, config)]
 
 class PureDataAlternative:
-    def __init__(self, result):
+    def __init__(self, result, config):
         self.confidence = 1.0#result["score"]
 
         word_texts = result["label"].split()
@@ -55,8 +55,8 @@ class PureDataAlternative:
 
         position = 0
         for word in word_texts:
-            start_times.append(max(0.0, result["start_times"][position]-1.0))
-            end_times.append(max(0.0, result["end_times"][position]-1.0))
+            start_times.append(max(0.0, result["start_times"][position]+config["deploy"]["model"]["timestamp_offset"]))
+            end_times.append(max(0.0, result["end_times"][position]+config["deploy"]["model"]["timestamp_offset"]))
 
             position += len(word) + 1
 

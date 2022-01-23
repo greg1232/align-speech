@@ -16,6 +16,7 @@ deploy:
     #    endpoint: "http://localhost:5002/peoples_speech/predict"
     #    google_cloud_storage_path: "gs://peoples-speech/google-speech-to-text-dev-set"
     #    storage_path: "s3://peoples-speech/auto_align/scratch"
+    #    timestamp_offset: -0.6
     model:
         type: "google"
         language: "en"
