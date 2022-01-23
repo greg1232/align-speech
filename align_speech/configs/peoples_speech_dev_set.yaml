@@ -10,8 +10,14 @@ data:
     padding_ms: 1000
 
 deploy:
+    #model:
+    #    type: "conformer"
+    #    language: "en"
+    #    endpoint: "http://localhost:5002/peoples_speech/predict"
+    #    google_cloud_storage_path: "gs://peoples-speech/google-speech-to-text-dev-set"
+    #    storage_path: "s3://peoples-speech/auto_align/scratch"
     model:
-        type: "conformer"
+        type: "google"
         language: "en"
         endpoint: "http://localhost:5002/peoples_speech/predict"
         google_cloud_storage_path: "gs://peoples-speech/google-speech-to-text-dev-set"
@@ -19,7 +25,7 @@ deploy:
 
 align:
     minimum_return_confidence: 0.0
-    minimum_update_confidence: 10.0
-    minimum_alignment_confidence: 10.0
+    minimum_update_confidence: 40.0
+    minimum_alignment_confidence: 50.0
     minimum_speech_confidence: 50.0
 

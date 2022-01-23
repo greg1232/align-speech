@@ -9,6 +9,7 @@ from alignment.sequencealigner import SimpleScoring, GlobalSequenceAligner
 from align_speech.speech_models.speech_client_factory import SpeechClientFactory
 
 from align_speech.util.config import setup_config
+from align_speech.util.get_label_words import get_label_words
 
 from gruut import sentences as gruut_sentences
 
@@ -155,27 +156,6 @@ def compare_captions(results, caption, config):
                 best_match["alignment_confidence"] = alignment["alignment_confidence"]
 
     return best_match
-
-def get_label_words(label):
-    words = label.split()
-
-    without_punctuation = [word for word in words if not is_punctuation(word)]
-
-    normalized_words = []
-
-    for word in without_punctuation:
-        normalized_sentences = gruut_sentences(word)
-
-        for sentence in normalized_sentences:
-            for normalized_word in sentence:
-                normalized_words.append(normalized_word.text.lower())
-
-    normalized_words_no_punctuation = [word for word in normalized_words if not is_punctuation(word)]
-
-    return normalized_words_no_punctuation
-
-def is_punctuation(word):
-    return word == "." or word == "," or word == "!" or word == "[" or word == "]"
 
 def align_sequence(label_words, alternative):
     normalized_words = normalize_words(alternative.words)

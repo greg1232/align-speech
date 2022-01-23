@@ -1,3 +1,6 @@
+
+from align_speech.util.get_label_words import get_label_words
+
 import io
 import os
 
