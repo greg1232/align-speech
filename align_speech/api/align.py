@@ -170,10 +170,21 @@ def get_label_words(label):
             for normalized_word in sentence:
                 normalized_words.append(normalized_word.text.lower())
 
-    return [word for word in normalized_words if not is_punctuation(word)]
+    normalized_words_no_punctuation = [word for word in normalized_words if not is_punctuation(word)]
+
+    # split into characters
+    characters = []
+
+    for word in normalized_words_no_punctuation:
+        for character in word:
+            characters.append(str(character))
+
+        characters.append(" ")
+
+    return characters
 
 def is_punctuation(word):
-    return word == "." or word == ","
+    return word == "." or word == "," or word == "!" or word == "[" or word == "]"
 
 def align_sequence(label_words, alternative):
     normalized_words = normalize_words(alternative.words)
@@ -233,7 +244,16 @@ def normalize_words(words):
 
     logger.debug("Normalized to : " + str([word.word for word in normalized_words]))
 
-    return normalized_words
+    # split into characters
+    characters = []
+
+    for word in normalized_words:
+        for character in normalized_word.text:
+            characters.append(Word(str(character), word.start_time, word.end_time))
+
+        characters.append(Word(" ", word.start_time, word.end_time))
+
+    return characters
 
 class Word:
     def __init__(self, word, start_time, end_time):
