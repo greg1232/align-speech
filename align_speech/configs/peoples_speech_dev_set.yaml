@@ -5,19 +5,21 @@ verbose_info: True
 data:
     audio_path: data/peoples-speech-dev-set/17DaysTh1945/17DaysTh1945.flac
     srt_path: data/peoples-speech-dev-set/17DaysTh1945/17DaysTh1945_sentences.srt
-    result_srt_path: data/17DaysTh1945/17DaysTh1945_sentences-result.srt
+    result_srt_path: data/peoples-speech-dev-set/17DaysTh1945/17DaysTh1945-best.srt
     sampling_rate: 22050
     padding_ms: 1000
 
 deploy:
     model:
-        type: "google"
+        type: "conformer"
         language: "en"
+        endpoint: "http://localhost:5002/peoples_speech/predict"
         google_cloud_storage_path: "gs://peoples-speech/google-speech-to-text-dev-set"
+        storage_path: "s3://peoples-speech/auto_align/scratch"
 
 align:
     minimum_return_confidence: 0.0
-    minimum_update_confidence: 50.0
-    minimum_alignment_confidence: 50.0
+    minimum_update_confidence: 10.0
+    minimum_alignment_confidence: 10.0
     minimum_speech_confidence: 50.0
 

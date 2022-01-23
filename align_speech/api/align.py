@@ -1,16 +1,14 @@
 
 import os
-import io
-
-from google.cloud import speech
+import concurrent.futures
 
 from alignment.sequence import Sequence
 from alignment.vocabulary import Vocabulary
 from alignment.sequencealigner import SimpleScoring, GlobalSequenceAligner
 
-from align_speech.util.config import setup_config
+from align_speech.speech_models.speech_client_factory import SpeechClientFactory
 
-from smart_open import open
+from align_speech.util.config import setup_config
 
 from gruut import sentences as gruut_sentences
 
@@ -62,67 +60,40 @@ def align_pairs(individual_alignments, config):
 
 def align_individual(data, config):
 
-    model = GoogleSpeechAPIClient(config)
+    model = SpeechClientFactory(config).create()
 
-    for index, caption in enumerate(data):
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        matches = []
+        for index, caption in enumerate(data):
+            match = executor.submit(get_best_match, index, caption, model, config)
+            matches.append(match)
 
-        match = get_match(index, caption, model, config)
+        for match in matches:
+            result = match.result()
 
-        if match is None:
-            match = try_relaxed_match(index, caption, model, config)
-        elif ((match["speech_confidence"] > config["align"]["minimum_speech_confidence"]) and
-            (match["alignment_confidence"] < config["align"]["minimum_alignment_confidence"])):
-            match = try_relaxed_match(index, caption, model, config)
+            if not result is None:
+                yield result
 
-        if match is None:
-            continue
+def get_best_match(index, caption, model, config):
 
-        logger.debug("Best match: " + str(match))
+    match = get_match(index, caption, model, config)
 
-        if match["confidence"] < config["align"]["minimum_return_confidence"]:
-            logger.debug("Skipping match below confidence.")
-            continue
+    if match is None:
+        match = try_relaxed_match(index, caption, model, config)
+    elif ((match["speech_confidence"] > config["align"]["minimum_speech_confidence"]) and
+        (match["alignment_confidence"] < config["align"]["minimum_alignment_confidence"])):
+        match = try_relaxed_match(index, caption, model, config)
 
-        yield match
+    if match is None:
+        return None
 
-class GoogleSpeechAPIClient:
-    def __init__(self, config):
-        self.config = config
-        self.client = speech.SpeechClient()
+    logger.debug("Best match: " + str(match))
 
-    def predict(self, audio, name, label):
+    if match["confidence"] < config["align"]["minimum_return_confidence"]:
+        logger.debug("Skipping match below confidence.")
+        return None
 
-        logger.debug("Running google speech to text on: " + name)
-
-        gcs_path = self.copy_to_gcs(audio, name)
-
-        recognize_audio = speech.RecognitionAudio(uri=gcs_path)
-
-        config = speech.RecognitionConfig(
-            encoding=speech.RecognitionConfig.AudioEncoding.FLAC,
-            sample_rate_hertz=audio.frame_rate,
-            enable_word_time_offsets=True,
-            speech_contexts = [speech.SpeechContext(phrases=get_label_words(label))],
-            #enable_word_confidence=True,
-            language_code=self.config["deploy"]["model"]["language"],
-        )
-
-        response = self.client.recognize(config=config,
-            audio=recognize_audio, timeout=15.0)
-
-        #logger.debug(" result is: " + str(response.results))
-
-        return response.results
-
-    def copy_to_gcs(self, audio, name):
-        gcs_path = os.path.join(self.config["deploy"]["model"]["google_cloud_storage_path"], name)
-
-        with open(gcs_path, "wb") as gcs_file:
-            with io.BytesIO() as temp_file:
-                audio.export(temp_file, format="flac")
-                gcs_file.write(temp_file.read())
-
-        return gcs_path
+    return match
 
 def get_match(index, caption, model, config):
 
@@ -199,7 +170,7 @@ def get_label_words(label):
             for normalized_word in sentence:
                 normalized_words.append(normalized_word.text.lower())
 
-    return normalized_words
+    return [word for word in normalized_words if not is_punctuation(word)]
 
 def is_punctuation(word):
     return word == "." or word == ","
@@ -221,8 +192,8 @@ def align_sequence(label_words, alternative):
     logger.debug("Labeled encoded: " + str(label_encoded))
 
     # Create a scoring and align the sequences using global aligner.
-    scoring = SimpleScoring(2, -1)
-    aligner = GlobalSequenceAligner(scoring, -2)
+    scoring = SimpleScoring(100, -1)
+    aligner = GlobalSequenceAligner(scoring, -1)
     score, encodeds = aligner.align(label_encoded, predicted_encoded, backtrace=True)
 
     best_encoded = [item[1] for item in encodeds[0]]
